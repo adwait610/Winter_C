@@ -8,50 +8,74 @@ vector<Doctor*> doctors;
 vector<Patient*> patients;
 vector<PatientHistory*> histories;
 
-void loadData() {
-    ifstream docFile("doctor.txt"), patFile("patient.txt"), histFile("history.txt");
-    string name, email, specialty, hours, hNum, dob, phone, allergy, gender, doc, treat, date;
-    
-    while (getline(docFile, name, ',')) {
-        getline(docFile, email, ',');
-        getline(docFile, specialty, ',');
-        getline(docFile, hours);
-        doctors.push_back(new Doctor(name, email, specialty, hours));
-    }
+void saveData() {
+    ofstream docFile("doctor.txt"), patFile("patient.txt"), histFile("history.txt");
+    for (auto d : doctors) docFile << d->getData();
+    for (auto p : patients) patFile << p->getData();
+    for (auto h : histories) histFile << h->getData();
+}
 
-    while (getline(patFile, hNum, ',')) {
-        getline(patFile, name, ',');
-        getline(patFile, dob, ',');
-        getline(patFile, phone, ',');
-        getline(patFile, email, ',');
-        getline(patFile, allergy, ',');
-        getline(patFile, gender);
-        patients.push_back(new Patient(name, hNum, dob, phone, email, allergy, gender));
-    }
+void addDoctor() {
+    string name, email, specialty, hours;
+    cin.ignore();
+    getline(cin, name);
+    getline(cin, email);
+    getline(cin, specialty);
+    getline(cin, hours);
+    doctors.push_back(new Doctor(name, email, specialty, hours));
+    saveData();
+}
 
-    while (getline(histFile, hNum, ',')) {
-        getline(histFile, name, ',');
-        getline(histFile, doc, ',');
-        getline(histFile, treat, ',');
-        getline(histFile, date);
-        histories.push_back(new PatientHistory(hNum, name, doc, treat, date));
+void addPatient() {
+    string name, hNum, dob, phone, email, allergy, gender;
+    cin.ignore();
+    getline(cin, hNum);
+    getline(cin, name);
+    getline(cin, dob);
+    getline(cin, phone);
+    getline(cin, email);
+    getline(cin, allergy);
+    getline(cin, gender);
+    patients.push_back(new Patient(name, hNum, dob, phone, email, allergy, gender));
+    saveData();
+}
+
+void deleteDoctor(int index) {
+    if (index >= 0 && index < doctors.size()) {
+        delete doctors[index];
+        doctors.erase(doctors.begin() + index);
+        saveData();
+    }
+}
+
+void deletePatient(int index) {
+    if (index >= 0 && index < patients.size()) {
+        delete patients[index];
+        patients.erase(patients.begin() + index);
+        saveData();
     }
 }
 
 void menu() {
     int choice;
     while (true) {
-        cout << "1) View/Edit Patients 2) View/Edit Doctors 3) View/Edit Patient History 0) Exit: ";
+        cout << "1) Add Doctor 2) Add Patient 3) Delete Doctor 4) Delete Patient 0) Exit: ";
         cin >> choice;
         if (choice == 0) break;
-        if (choice == 1) patients[0]->display(); 
-        if (choice == 2) doctors[0]->display();
-        if (choice == 3) histories[0]->display();
+        if (choice == 1) addDoctor();
+        if (choice == 2) addPatient();
+        if (choice == 3) {
+            int index; cin >> index;
+            deleteDoctor(index - 1);
+        }
+        if (choice == 4) {
+            int index; cin >> index;
+            deletePatient(index - 1);
+        }
     }
 }
 
 int main() {
-    loadData();
     menu();
     return 0;
 }
